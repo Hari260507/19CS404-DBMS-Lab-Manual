@@ -27,9 +27,6 @@ END;
 
 # PL/SQL Programs – Steps and Expected Output
 ```
-NAME: SWETHA S V
-REGISTER.NO: 212224230285
-```
 ## 1. Write a PL/SQL program to find the Greatest of Two Numbers
 
 ### Steps:
