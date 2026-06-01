@@ -1,314 +1,248 @@
-# Experiment 3: DML Commands
+# Experiment 4: Aggregate Functions, Group By and Having Clause
 
 ## AIM
-To study and implement DML (Data Manipulation Language) commands.
+To study and implement aggregate functions, GROUP BY, and HAVING clause with suitable examples.
 
 ## THEORY
 
-### 1. INSERT INTO
-Used to add records into a relation.
-These are three type of INSERT INTO queries which are as
-A)Inserting a single record
-**Syntax (Single Row):**
-```sql
-INSERT INTO table_name (field_1, field_2, ...) VALUES (value_1, value_2, ...);
-```
-**Syntax (Multiple Rows):**
-```sql
-INSERT INTO table_name (field_1, field_2, ...) VALUES
-(value_1, value_2, ...),
-(value_3, value_4, ...);
-```
-**Syntax (Insert from another table):**
-```sql
-INSERT INTO table_name SELECT * FROM other_table WHERE condition;
-```
-### 2. UPDATE
-Used to modify records in a relation.
-Syntax:
-```sql
-UPDATE table_name SET column1 = value1, column2 = value2 WHERE condition;
-```
-### 3. DELETE
-Used to delete records from a relation.
-**Syntax (All rows):**
-```sql
-DELETE FROM table_name;
-```
-**Syntax (Specific condition):**
-```sql
-DELETE FROM table_name WHERE condition;
-```
-### 4. SELECT
-Used to retrieve records from a table.
+### Aggregate Functions
+These perform calculations on a set of values and return a single value.
+
+- **MIN()** – Smallest value  
+- **MAX()** – Largest value  
+- **COUNT()** – Number of rows  
+- **SUM()** – Total of values  
+- **AVG()** – Average of values
+
 **Syntax:**
 ```sql
-SELECT column1, column2 FROM table_name WHERE condition;
+SELECT AGG_FUNC(column_name) FROM table_name WHERE condition;
+```
+### GROUP BY
+Groups records with the same values in specified columns.
+**Syntax:**
+```sql
+SELECT column_name, AGG_FUNC(column_name)
+FROM table_name
+GROUP BY column_name;
+```
+### HAVING
+Filters the grouped records based on aggregate conditions.
+**Syntax:**
+```sql
+SELECT column_name, AGG_FUNC(column_name)
+FROM table_name
+GROUP BY column_name
+HAVING condition;
 ```
 ### Queries:
 ```
 Name: SWETHA S V
 Reg.NO: 212224230285
 ```
+
 **Question 1**
 --
-Update the total selling price to quantity sold multiplied by updated selling price per unit where product id is 10 in the sales table.
+What is the total number of appointments scheduled by each doctor?
 
-SALES TABLE
-name               type
------------------  ---------------
-sale_id            INT
-sale_date          DATE
-product_id         INT
-quantity           INT
-sell_price         DECIMAL(10,2)
-total_sell_price   DECIMAL(10,2)
+Sample table:Appointments Table
 
 ```sql
-update sales
-set total_sell_price = quantity * sell_price
-where product_id = 10
+SELECT DoctorID, COUNT(*) as TotalAppointments
+FROM Appointments
+GROUP BY DoctorID;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/91c0b416-0f63-4ed6-9524-3817d7b08478)
+![image](https://github.com/user-attachments/assets/d861763b-715e-4fee-8d04-0fa66749ded4)
 
 **Question 2**
 ---
-Write a SQL statement to Change the category to 'Household' where product name contains 'Detergent' in the products table.
+How many patients are covered by each insurance company?
 
-Products Table 
+Sample table:Insurance Table
 
-name          type       
-----------    ---------- 
-product_id     INT PRIMARY KEY        
-product_name   VARCHAR(10) 
-category       VARCHAR(50) 
-cost_price     DECIMAL(10) 
-sell_price     DECIMAL(10) 
-reorder_lvl    INT        
-quantity       INT        
-supplier_id    INT
+name               type
+-----------------  ----------
+InsuranceID        INTEGER
+PatientID          INTEGER
+InsuranceCompany   TEXT
+PolicyNumber       TEXT
+PolicyHolder       TEXT
+ValidityPeriod     TEXT
 
 ```sql
-update products
-set category = 'Household'
-where product_name like '%Detergent%';
+SELECT insuranceCompany, COUNT(DISTINCT PatientID) as TotalPatients 
+FROM Insurance
+GROUP BY InsuranceCompany;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/58f8c80b-a8e2-4e10-8d0a-3c95edf23280)
+![image](https://github.com/user-attachments/assets/31975413-295e-413c-b5dc-5609078451a2)
 
 **Question 3**
 ---
-Write a SQL statement to double the availability of the product with product_id 1.
+How many doctors specialize in each medical specialty?
 
-products table
-
----------------
-product_id
-product_name
-category_id
-availability
+Sample table:Doctors Table
 
 ```sql
-update products
-set availability = availability * 2
-where product_id is 1;
+SELECT Specialty, COUNT(*) as TotalDocto
+FROM Doctors
+GROUP BY Specialty;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/57dee195-d6e1-4140-aeb9-bcb50e6ec39b)
+![image](https://github.com/user-attachments/assets/2570feea-e149-436a-bd7b-4ec023f34715)
 
 **Question 4**
 ---
-Decrease the reorder level by 30 percent where the product name contains 'cream' and quantity in stock is higher than reorder level in the products table.
+Write a SQL query to Calculate the average email length (in characters) for people who lives in Mumbai city
 
-PRODUCTS TABLE
+Table: customer
 
-name               type
------------------  ---------------
-product_id         INT
-product_name       VARCHAR(100)
-category           VARCHAR(50)
-cost_price         DECIMAL(10,2)
-sell_price         DECIMAL(10,2)
-reorder_lvl        INT
-quantity           INT
-supplier_id        INT
+name        type
+----------  ----------
+id          INTEGER
+name        TEXT   
+city        TEXT
+email       TEXT
+phone       INTEGER
 
 ```sql
-update products
-set reorder_lvl = reorder_lvl * 0.7
-where product_name like '%cream%' and quantity > reorder_lvl;
+SELECT AVG(LENGTH(email)) AS avg_email_length_below_30
+FROM customer
+WHERE city='Mumbai';
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/240f611c-172e-4b0d-91ab-191c1fac3920)
+![image](https://github.com/user-attachments/assets/72450d0d-92d0-4b86-b3da-cfc3c3834a94)
 
 **Question 5**
 ---
-Change the supplier name to upper case where contact person contains ' Singh' in suppliers table.
+Write a SQL query to find What is the age difference between the youngest and oldest employee in the company.
 
-name               type
------------------  ---------------
-supplier_id        INT
-supplier_name      VARCHAR(100)
-contact_person     VARCHAR(100)
-phone_number       VARCHAR(20)
-email              VARCHAR(100)
-address            VARCHAR(250)
+Table: employee
+
+name        type
+----------  ----------
+id          INTEGER
+name        TEXT
+age         INTEGER
+city        TEXT
+income      INTEGER
 
 ```sql
-update suppliers
-set supplier_name = UPPER(supplier_name)
-where contact_person like '%Singh%'
+SELECT MAX(age)-MIN(age) as age_difference
+FROM employee;
 ```
 
 **Output:**
 
-!![image](https://github.com/user-attachments/assets/7ba6650d-3fe9-49d1-bbd9-26e44f01ce8b)
+![image](https://github.com/user-attachments/assets/54e65c0f-8a1c-4195-9d44-b298c2d9f2fc)
 
 **Question 6**
 ---
-Write a SQL query to Delete all Doctors whose Specialization is either 'Pediatrics' or 'Cardiology' and Last Name is Brown.
+Write a SQL query that counts the number of unique salespeople. Return number of salespeople.
 
-Sample table: Doctors
+Sample table: orders
 
-attributes : doctor_id, first_name, last_name, specialization
+ord_no      purch_amt   ord_date    customer_id  salesman_id
+
+----------  ----------  ----------  -----------  -----------
+
+70001       150.5       2012-10-05  3005         5002
+
+70009       270.65      2012-09-10  3001         5005
+
+70002       65.26       2012-10-05  3002         5001
 
 ```sql
-delete from doctors
-where (specialization = 'Pediatrics' or specialization = 'Cardiology') and last_name = 'Brown';
+SELECT COUNT(DISTINCT salesman_id) as COUNT
+FROM orders;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/755afd21-8b38-481f-83af-a686c6da85dd)
+![image](https://github.com/user-attachments/assets/faf186e9-ad66-4984-b943-90a2a835a832)
 
 **Question 7**
 ---
-Write a SQL query to delete a specific doctor from Doctors table whose ID is 1.
+Write a SQL query to find the average length of email addresses (in characters):
 
-Sample table: Doctors
+Table: customer
 
-attributes : doctor_id, first_name, last_name, specialization
+name        type
+----------  ----------
+id          INTEGER
+name        TEXT
+city        TEXT
+email       TEXT
+phone       INTEGER
 
 ```sql
-delete from doctors
-where doctor_id = 1
+SELECT AVG(LENGTH(email)) as avg_email_length
+FROM customer;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/b7f8e00f-d7c4-47c0-9042-2bd1bc9dc09b)
+![image](https://github.com/user-attachments/assets/165baf6f-4853-47db-9981-0daf7eab6bab)
 
 **Question 8**
 ---
-Write a query to fetch details of employees whose EmpLname ends with an alphabet ‘A’ and contains five alphabets.
-EmployeeInfo Table
+Write the SQL query that accomplishes the selection of number of products for each category from products table which includes only those products where the category ID is greater than 2.
 
-EmpID
-
-EmpFname
-
-EmpLname
-
-Department
-
-Project
-
-Address
-
-DOB
-
-Gender
-
-1
-
-Sanjay
-
-Mehra
-
-HR
-
-P1
-
-Hyderabad(HYD)
-
-01/12/1976
-
-M
-
-2
-
-Ananya
-
-Mishra
-
-Admin
-
-P2
-
-Delhi(DEL)
-
-02/05/1968
-
-F
+Sample table: products
 
 ```sql
-select EmpID, EmpFname, EmpLname, Department, Project, Address, DOB, Gender
-from EmployeeInfo 
-where EmpLname like '%A' and length(EmpLname) = 5;
-
+SELECT category_id, COUNT(*) as COUNT
+FROM products
+WHERE category_id > 2
+GROUP BY category_id;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/13a1ac1c-a6f7-4966-928b-4183bd5d3d39)
+![image](https://github.com/user-attachments/assets/af8ee33c-f3e6-46a3-93f2-db40f5bff5b2)
 
 **Question 9**
 ---
-Write a query to list all products that have a discounted price between $100 and $250. Return product_id, original_price, discount_percentage, and discounted_price from products table.
+Write the SQL query that achieves the grouping of data by age, calculates the minimum income for each age group, and includes only those age groups where the minimum income is less than 1,000,000.
+
+Sample table: employee
 
 ```sql
-select product_id, original_price, discount_percentage, original_price * (1 - discount_percentage) as discounted_price from products
-where discounted_price between 100 and 250;
+SELECT age, MIN(income) as Income
+FROM employee
+GROUP BY age
+HAVING MIN(income) < 1000000;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/a17d1481-d6a3-4416-ad26-2237a479f8af)
+![image](https://github.com/user-attachments/assets/3ad09c85-2e0a-45e8-b8cc-490333eb4740)
 
 **Question 10**
 ---
-Write a SQL query to display hire dates in the format "DD-MM-YYYY" from the emp table
+Write the SQL query that accomplishes the selection of average price for each category from the "products" table and includes only those products where the average price falls between 10 and 15.
 
-cid         name        type        
-----------  ----------  ---------- 
-0           empno       INT         
-1           ename       VARCHAR(100)
-2           job         VARCHAR(50)
-3           mgr         INT        
-4           hiredate    DATE        
-5           sal         DECIMAL(10,2)  
-6           comm        DECIMAL(10,2)  
-7           deptno      INT  
+Sample table: products
 
 ```sql
-select ename, substr(hiredate, 9, 2) || '-' || substr(hiredate, 6, 2) || '-' || substr(hiredate, 1, 4) as HireDateFormatted
-from emp;
+SELECT category_id, AVG(price) as "AVG(Price)"
+FROM products
+GROUP BY category_id
+HAVING AVG(price) BETWEEN 10 and 15;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/a41fd419-ff87-427a-98bc-e876eebe7d07)
+![image](https://github.com/user-attachments/assets/9f53f017-4e09-471c-ad6c-e91d00d73c22)
 
 ## RESULT
-Thus, the SQL queries to implement DML commands have been executed successfully.
-
-
+Thus, the SQL queries to implement aggregate functions, GROUP BY, and HAVING clause have been executed successfully.
