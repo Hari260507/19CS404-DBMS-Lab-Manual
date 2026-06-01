@@ -1,248 +1,353 @@
-# Experiment 4: Aggregate Functions, Group By and Having Clause
+# Experiment 5: Subqueries and Views
 
 ## AIM
-To study and implement aggregate functions, GROUP BY, and HAVING clause with suitable examples.
+To study and implement subqueries and views.
 
 ## THEORY
 
-### Aggregate Functions
-These perform calculations on a set of values and return a single value.
+### Subqueries
+A subquery is a query inside another SQL query and is embedded in:
+- WHERE clause
+- HAVING clause
+- FROM clause
 
-- **MIN()** – Smallest value  
-- **MAX()** – Largest value  
-- **COUNT()** – Number of rows  
-- **SUM()** – Total of values  
-- **AVG()** – Average of values
+**Types:**
+- **Single-row subquery**:
+  Sub queries can also return more than one value. Such results should be made use along with the operators in and any.
+- **Multiple-row subquery**:
+  Here more than one subquery is used. These multiple sub queries are combined by means of ‘and’ & ‘or’ keywords.
+- **Correlated subquery**:
+  A subquery is evaluated once for the entire parent statement whereas a correlated Sub query is evaluated once per row processed by the parent statement.
 
-**Syntax:**
+**Example:**
 ```sql
-SELECT AGG_FUNC(column_name) FROM table_name WHERE condition;
+SELECT * FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees);
 ```
-### GROUP BY
-Groups records with the same values in specified columns.
-**Syntax:**
+### Views
+A view is a virtual table based on the result of an SQL SELECT query.
+**Create View:**
 ```sql
-SELECT column_name, AGG_FUNC(column_name)
-FROM table_name
-GROUP BY column_name;
+CREATE VIEW view_name AS
+SELECT column1, column2 FROM table_name WHERE condition;
 ```
-### HAVING
-Filters the grouped records based on aggregate conditions.
-**Syntax:**
+**Drop View:**
 ```sql
-SELECT column_name, AGG_FUNC(column_name)
-FROM table_name
-GROUP BY column_name
-HAVING condition;
-```
-### Queries:
-```
-Name: SWETHA S V
-Reg.NO: 212224230285
+DROP VIEW view_name;
 ```
 
 **Question 1**
 --
-What is the total number of appointments scheduled by each doctor?
+Write a query to display all the customers whose ID is the difference between the salesperson ID of Mc Lyon and 2001.
 
-Sample table:Appointments Table
+salesman table
+
+name             type
+---------------  ---------------
+salesman_id      numeric(5)
+name                 varchar(30)
+city                    varchar(15)
+commission       decimal(5,2)
+
+customer table
+
+name         type
+-----------  ----------
+customer_id  int
+cust_name    text
+city         text
+grade        int
+salesman_id  int
 
 ```sql
-SELECT DoctorID, COUNT(*) as TotalAppointments
-FROM Appointments
-GROUP BY DoctorID;
+SELECT customer_id, cust_name, city, grade, salesman_id
+FROM customer
+WHERE customer_id = (SELECT salesman_id - 2001 FROM salesman WHERE name = 'Mc Lyon');
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/d861763b-715e-4fee-8d04-0fa66749ded4)
+![image](https://github.com/user-attachments/assets/d9bf3255-c325-43e2-aa44-f38451ab4ebe)
 
 **Question 2**
 ---
-How many patients are covered by each insurance company?
+From the following tables, write a SQL query to find all the orders generated in New York city. Return ord_no, purch_amt, ord_date, customer_id and salesman_id.
 
-Sample table:Insurance Table
+SALESMAN TABLE
 
 name               type
------------------  ----------
-InsuranceID        INTEGER
-PatientID          INTEGER
-InsuranceCompany   TEXT
-PolicyNumber       TEXT
-PolicyHolder       TEXT
-ValidityPeriod     TEXT
+-----------        ----------
+salesman_id  numeric(5)
+name             varchar(30)
+city                 varchar(15)
+commission   decimal(5,2)
+
+ORDERS TABLE
+
+name            type
+----------      ----------
+ord_no          int
+purch_amt    real
+ord_date       text
+customer_id  int
+salesman_id  int
 
 ```sql
-SELECT insuranceCompany, COUNT(DISTINCT PatientID) as TotalPatients 
-FROM Insurance
-GROUP BY InsuranceCompany;
+SELECT o.ord_no, o.purch_amt, o.ord_date, o.customer_id, o.salesman_id
+FROM orders o
+JOIN salesman s ON o.salesman_id = s.salesman_id
+WHERE s.city = 'New York';
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/31975413-295e-413c-b5dc-5609078451a2)
+![image](https://github.com/user-attachments/assets/792940bb-7ce5-4471-812b-3be44c7d7c2f)
 
 **Question 3**
 ---
-How many doctors specialize in each medical specialty?
+From the following tables write a SQL query to find the order values greater than the average order value of 10th October 2012. Return ord_no, purch_amt, ord_date, customer_id, salesman_id.
 
-Sample table:Doctors Table
+Note: date should be yyyy-mm-dd format
+
+ORDERS TABLE
+
+name            type
+----------     ----------
+ord_no          int
+purch_amt    real
+ord_date       text
+customer_id  int
+salesman_id  int
 
 ```sql
-SELECT Specialty, COUNT(*) as TotalDocto
-FROM Doctors
-GROUP BY Specialty;
+SELECT 
+    ord_no,
+    purch_amt,
+    ord_date,
+    customer_id,
+    salesman_id
+FROM 
+    orders
+WHERE 
+    purch_amt > (
+        SELECT 
+            AVG(purch_amt)
+        FROM 
+            orders
+        WHERE 
+            ord_date = '2012-10-10'
+    );
+
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/2570feea-e149-436a-bd7b-4ec023f34715)
+![image](https://github.com/user-attachments/assets/caa5a5a4-6048-4830-91cd-eeef84e92da1)
+
 
 **Question 4**
 ---
-Write a SQL query to Calculate the average email length (in characters) for people who lives in Mumbai city
+Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose salary is greater than $4500.
 
-Table: customer
+Sample table: CUSTOMERS
 
-name        type
-----------  ----------
-id          INTEGER
-name        TEXT   
-city        TEXT
-email       TEXT
-phone       INTEGER
+ID          NAME        AGE         ADDRESS     SALARY
+----------  ----------  ----------  ----------  ----------
+
+1          Ramesh     32              Ahmedabad     2000
+2          Khilan        25              Delhi                 1500
+3          Kaushik      23              Kota                  2000
+4          Chaitali       25             Mumbai            6500
+5          Hardik        27              Bhopal              8500
+6          Komal         22              Hyderabad       4500
+
+7           Muffy          24              Indore            10000
 
 ```sql
-SELECT AVG(LENGTH(email)) AS avg_email_length_below_30
-FROM customer
-WHERE city='Mumbai';
+SELECT *
+FROM CUSTOMERS
+WHERE ID IN (
+    SELECT ID
+    FROM CUSTOMERS
+    WHERE SALARY > 4500
+);
+
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/72450d0d-92d0-4b86-b3da-cfc3c3834a94)
+![image](https://github.com/user-attachments/assets/ca0ab056-bb32-4110-8ee4-d8b572dc0bc1)
 
 **Question 5**
 ---
-Write a SQL query to find What is the age difference between the youngest and oldest employee in the company.
+Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose salary is LESS than $2500.
 
-Table: employee
+Sample table: CUSTOMERS
 
-name        type
-----------  ----------
-id          INTEGER
-name        TEXT
-age         INTEGER
-city        TEXT
-income      INTEGER
+ID          NAME        AGE         ADDRESS     SALARY
+----------  ----------  ----------  ----------  ----------
+
+1          Ramesh     32              Ahmedabad     2000
+2          Khilan        25              Delhi                 1500
+3          Kaushik      23              Kota                  2000
+4          Chaitali       25             Mumbai            6500
+5          Hardik        27              Bhopal              8500
+6          Komal         22              Hyderabad       4500
+
+7           Muffy          24              Indore            10000
 
 ```sql
-SELECT MAX(age)-MIN(age) as age_difference
-FROM employee;
+SELECT *
+FROM CUSTOMERS
+WHERE ID IN (
+    SELECT ID
+    FROM CUSTOMERS
+    WHERE SALARY < 2500
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/54e65c0f-8a1c-4195-9d44-b298c2d9f2fc)
+![image](https://github.com/user-attachments/assets/b2d89532-3f8e-422f-992e-e03d4fa86dcd)
 
 **Question 6**
 ---
-Write a SQL query that counts the number of unique salespeople. Return number of salespeople.
+Write a SQL query to Find employees who have an age less than the average age of employees with incomes over 1 million
 
-Sample table: orders
+Employee Table
 
-ord_no      purch_amt   ord_date    customer_id  salesman_id
+name             type
 
-----------  ----------  ----------  -----------  -----------
+------------   ---------------
 
-70001       150.5       2012-10-05  3005         5002
+id                    INTEGER
 
-70009       270.65      2012-09-10  3001         5005
+name              TEXT
 
-70002       65.26       2012-10-05  3002         5001
+age                 INTEGER
 
+city                 TEXT
+
+income           INTEGER
 ```sql
-SELECT COUNT(DISTINCT salesman_id) as COUNT
-FROM orders;
+SELECT *
+FROM Employee
+WHERE age < (
+    SELECT AVG(age)
+    FROM Employee
+    WHERE income > 1000000
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/faf186e9-ad66-4984-b943-90a2a835a832)
+![image](https://github.com/user-attachments/assets/a5c399e3-2752-44ea-af60-6e3a97589565)
 
 **Question 7**
 ---
-Write a SQL query to find the average length of email addresses (in characters):
+Write a SQL query that retrieve all the columns from the table "Grades", where the grade is equal to the maximum grade achieved in each subject.
 
-Table: customer
-
-name        type
-----------  ----------
-id          INTEGER
-name        TEXT
-city        TEXT
-email       TEXT
-phone       INTEGER
+Sample table: GRADES (attributes: student_id, student_name, subject, grade)
 
 ```sql
-SELECT AVG(LENGTH(email)) as avg_email_length
-FROM customer;
+SELECT *
+FROM Grades g
+WHERE grade = (
+    SELECT MAX(grade)
+    FROM Grades
+    WHERE subject = g.subject
+);
+
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/165baf6f-4853-47db-9981-0daf7eab6bab)
+![image](https://github.com/user-attachments/assets/1b893fc3-2033-4285-81e4-4e30b580ceed)
 
 **Question 8**
 ---
-Write the SQL query that accomplishes the selection of number of products for each category from products table which includes only those products where the category ID is greater than 2.
+Write a SQL query to Find employees who have an age less than the average age of employees with incomes over 2.5 Lakh
 
-Sample table: products
+Employee Table
+
+name             type
+
+------------   ---------------
+
+id                    INTEGER
+
+name              TEXT
+
+age                 INTEGER
+
+city                 TEXT
+
+income           INTEGER
 
 ```sql
-SELECT category_id, COUNT(*) as COUNT
-FROM products
-WHERE category_id > 2
-GROUP BY category_id;
+SELECT *
+FROM Employee
+WHERE age < (
+    SELECT AVG(age)
+    FROM Employee
+    WHERE income > 250000
+);
+
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/af8ee33c-f3e6-46a3-93f2-db40f5bff5b2)
+![image](https://github.com/user-attachments/assets/c361fcb3-d4cd-4de3-b456-0bda376771d0)
 
 **Question 9**
 ---
-Write the SQL query that achieves the grouping of data by age, calculates the minimum income for each age group, and includes only those age groups where the minimum income is less than 1,000,000.
+Write a SQL query to retrieve all columns from the CUSTOMERS table for customers whose AGE is LESS than $30
 
-Sample table: employee
+Sample table: CUSTOMERS
 
+ID          NAME        AGE         ADDRESS     SALARY
+----------  ----------  ----------  ----------  ----------
+
+1          Ramesh     32              Ahmedabad     2000
+2          Khilan        25              Delhi                 1500
+3          Kaushik      23              Kota                  2000
+4          Chaitali       25             Mumbai            6500
+5          Hardik        27              Bhopal              8500
+6          Komal         22              Hyderabad       4500
+
+7           Muffy          24              Indore            10000
 ```sql
-SELECT age, MIN(income) as Income
-FROM employee
-GROUP BY age
-HAVING MIN(income) < 1000000;
+SELECT *
+FROM CUSTOMERS
+WHERE AGE < (
+    SELECT 30
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/3ad09c85-2e0a-45e8-b8cc-490333eb4740)
+![image](https://github.com/user-attachments/assets/cc5bd501-9480-45a5-a181-a0d15b57e854)
 
 **Question 10**
 ---
-Write the SQL query that accomplishes the selection of average price for each category from the "products" table and includes only those products where the average price falls between 10 and 15.
+Write a SQL query that retrieves the names of students and their corresponding grades, where the grade is equal to the maximum grade achieved in each subject.
 
-Sample table: products
+Sample table: GRADES (attributes: student_id, student_name, subject, grade)
+
 
 ```sql
-SELECT category_id, AVG(price) as "AVG(Price)"
-FROM products
-GROUP BY category_id
-HAVING AVG(price) BETWEEN 10 and 15;
+SELECT student_name, grade
+FROM GRADES g
+WHERE grade = (
+    SELECT MAX(grade)
+    FROM GRADES
+    WHERE subject = g.subject
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/9f53f017-4e09-471c-ad6c-e91d00d73c22)
+![image](https://github.com/user-attachments/assets/f0ffbd5c-55c1-4d3c-88f3-4f6f67ce6b3d)
 
 ## RESULT
-Thus, the SQL queries to implement aggregate functions, GROUP BY, and HAVING clause have been executed successfully.
+Thus, the SQL queries to implement subqueries and views have been executed successfully.
